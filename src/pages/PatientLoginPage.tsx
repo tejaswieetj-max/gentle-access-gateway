@@ -1,7 +1,7 @@
 import PatientVerification from "@/components/PatientVerification";
 
-const Index = () => {
+const PatientLoginPage = () => {
   return <PatientVerification />;
 };
 
-export default Index;
+export default PatientLoginPage;

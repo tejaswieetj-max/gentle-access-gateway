@@ -45,6 +45,10 @@
     --shadow-soft: 0 4px 24px -4px hsl(207 40% 70% / 0.25);
     --shadow-card: 0 8px 40px -8px hsl(207 50% 60% / 0.2);
 
+    /* Additional semantic tokens */
+    --warning: 45 93% 47%;
+    --warning-foreground: 26 83% 14%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -117,6 +121,16 @@
 
   .shadow-clinical {
     box-shadow: var(--shadow-card);
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
   }
 }
 

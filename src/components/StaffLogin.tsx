@@ -1,17 +1,20 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { Stethoscope, Hash, Lock } from "lucide-react";
+import { Stethoscope, Hash, Lock, ArrowLeft } from "lucide-react";
 
 const StaffLogin = () => {
   const [registerNumber, setRegisterNumber] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Staff login submitted:", { registerNumber });
+    navigate("/staff-dashboard");
   };
 
   return (
@@ -20,7 +23,17 @@ const StaffLogin = () => {
       <div className="absolute top-16 right-16 w-72 h-72 bg-primary/8 rounded-full blur-3xl animate-breathe" />
       <div className="absolute bottom-16 left-16 w-64 h-64 bg-accent/8 rounded-full blur-3xl animate-breathe" style={{ animationDelay: "2s" }} />
       
-      <Card className="w-full max-w-md card-gradient shadow-clinical border-0 animate-fade-in-up">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 z-20"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
+
+      <Card className="w-full max-w-md glass-card border-0 animate-fade-in-up">
         <CardHeader className="text-center pb-2 pt-8">
           {/* Icon */}
           <div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
