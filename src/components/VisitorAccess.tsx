@@ -1,20 +1,23 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { UserCheck, Hash, User, FileText, Pill } from "lucide-react";
+import { UserCheck, Hash, User, FileText, Pill, ArrowLeft } from "lucide-react";
 
 const VisitorAccess = () => {
   const [registerNumber, setRegisterNumber] = useState("");
   const [patientName, setPatientName] = useState("");
   const [medicalContext, setMedicalContext] = useState("");
   const [medications, setMedications] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Visitor access submitted:", { registerNumber, patientName, medicalContext, medications });
+    navigate("/breathing-session");
   };
 
   return (
@@ -23,7 +26,17 @@ const VisitorAccess = () => {
       <div className="absolute top-24 left-1/4 w-56 h-56 bg-primary/8 rounded-full blur-3xl animate-breathe" />
       <div className="absolute bottom-24 right-1/4 w-72 h-72 bg-accent/6 rounded-full blur-3xl animate-breathe" style={{ animationDelay: "2s" }} />
       
-      <Card className="w-full max-w-lg card-gradient shadow-clinical border-0 animate-fade-in-up">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 z-20"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
+
+      <Card className="w-full max-w-lg glass-card border-0 animate-fade-in-up">
         <CardHeader className="text-center pb-2 pt-8">
           {/* Icon */}
           <div className="mx-auto mb-4 w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center border border-accent/20">
