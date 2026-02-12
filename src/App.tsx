@@ -6,9 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPageRoute from "./pages/LandingPage";
 import PatientLoginPage from "./pages/PatientLoginPage";
 import StaffLoginPage from "./pages/StaffLoginPage";
-import VisitorAccessPage from "./pages/VisitorAccessPage";
+import NurseLoginPage from "./pages/NurseLoginPage";
 import PatientDashboardPage from "./pages/PatientDashboardPage";
 import StaffDashboardPage from "./pages/StaffDashboardPage";
+import NurseDashboardPage from "./pages/NurseDashboardPage";
 import BreathingSessionPage from "./pages/BreathingSessionPage";
 import MedicationInfoPage from "./pages/MedicationInfoPage";
 import NotFound from "./pages/NotFound";
@@ -25,7 +26,8 @@ const App = () => (
           <Route path="/" element={<LandingPageRoute />} />
           <Route path="/patient-login" element={<PatientLoginPage />} />
           <Route path="/staff-login" element={<StaffLoginPage />} />
-          <Route path="/visitor-access" element={<VisitorAccessPage />} />
+          <Route path="/nurse-login" element={<NurseLoginPage />} />
+          <Route path="/nurse-dashboard" element={<NurseDashboardPage />} />
           <Route path="/patient-dashboard" element={<PatientDashboardPage />} />
           <Route path="/staff-dashboard" element={<StaffDashboardPage />} />
           <Route path="/breathing-session" element={<BreathingSessionPage />} />

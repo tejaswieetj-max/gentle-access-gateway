@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { BedDouble, Stethoscope, HeartHandshake, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Role = "patient" | "staff" | "visitor";
+type Role = "patient" | "staff" | "nurse";
 
 const roles = [
   {
@@ -24,11 +24,11 @@ const roles = [
     highlighted: true,
   },
   {
-    id: "visitor" as Role,
-    title: "Visitor",
+    id: "nurse" as Role,
+    title: "Nurse Staff",
     icon: HeartHandshake,
-    subtext: "Visit loved ones",
-    route: "/visitor-access",
+    subtext: "Patient care tasks",
+    route: "/nurse-login",
   },
 ];
 
