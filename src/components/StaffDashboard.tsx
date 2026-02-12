@@ -1,74 +1,174 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Eye, Activity, CheckCircle2, AlertCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ArrowLeft, Eye, Activity, CheckCircle2, AlertCircle, Heart, Stethoscope, Apple,
+  Pill, FileText, Dumbbell, ChefHat, X
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, PieChart, Pie, Cell, Legend,
+} from "recharts";
 
-type PatientStatus = "active" | "completed" | "attention";
+interface Medicine {
+  name: string;
+  dosage: string;
+  timing: string; // e.g. "Before Breakfast", "After Lunch"
+  taken: boolean;
+}
 
 interface Patient {
   id: string;
   name: string;
   room: string;
-  status: PatientStatus;
+  status: "active" | "completed" | "attention";
   lastActivity: string;
+  nurseNotes: string[];
+  nutritionistCheckup: boolean;
+  physiotherapistCheckup: boolean;
+  meals: { label: string; eaten: boolean }[];
+  medicines: Medicine[];
+  vitals: {
+    bloodPressure: { time: string; systolic: number; diastolic: number }[];
+    heartRate: { time: string; bpm: number }[];
+    oxygenSaturation: { time: string; spo2: number }[];
+    breathingTherapy: { session: string; score: number }[];
+  };
 }
 
 const patients: Patient[] = [
-  { id: "1", name: "John Smith", room: "ICU-12", status: "active", lastActivity: "Breathing session in progress" },
-  { id: "2", name: "Maria Garcia", room: "Ward-3A", status: "attention", lastActivity: "Missed medication reminder" },
-  { id: "3", name: "Robert Chen", room: "ICU-08", status: "completed", lastActivity: "Session completed 10 min ago" },
-  { id: "4", name: "Sarah Johnson", room: "Ward-2B", status: "active", lastActivity: "Viewing medications" },
-  { id: "5", name: "Michael Brown", room: "Ward-4C", status: "completed", lastActivity: "All tasks completed" },
+  {
+    id: "1", name: "John Smith", room: "ICU-12", status: "active",
+    lastActivity: "Breathing session in progress",
+    nurseNotes: [
+      "6:00 AM — Vitals stable. Patient rested well overnight.",
+      "10:00 AM — Mild discomfort reported. Administered pain relief.",
+      "2:00 PM — Completed breathing therapy. SpO2 improved to 97%.",
+    ],
+    nutritionistCheckup: true, physiotherapistCheckup: false,
+    meals: [{ label: "Breakfast", eaten: true }, { label: "Lunch", eaten: true }, { label: "Dinner", eaten: false }],
+    medicines: [
+      { name: "Lisinopril 10mg", dosage: "10mg", timing: "Before Breakfast", taken: true },
+      { name: "Metformin 500mg", dosage: "500mg", timing: "After Breakfast", taken: true },
+      { name: "Aspirin 81mg", dosage: "81mg", timing: "After Lunch", taken: true },
+      { name: "Omeprazole 20mg", dosage: "20mg", timing: "Before Dinner", taken: false },
+    ],
+    vitals: {
+      bloodPressure: [
+        { time: "6 AM", systolic: 135, diastolic: 88 }, { time: "10 AM", systolic: 128, diastolic: 82 },
+        { time: "2 PM", systolic: 122, diastolic: 78 }, { time: "6 PM", systolic: 126, diastolic: 80 },
+      ],
+      heartRate: [
+        { time: "6 AM", bpm: 78 }, { time: "10 AM", bpm: 72 }, { time: "2 PM", bpm: 68 }, { time: "6 PM", bpm: 74 },
+      ],
+      oxygenSaturation: [
+        { time: "6 AM", spo2: 94 }, { time: "10 AM", spo2: 95 }, { time: "2 PM", spo2: 97 }, { time: "6 PM", spo2: 96 },
+      ],
+      breathingTherapy: [
+        { session: "Day 1", score: 60 }, { session: "Day 2", score: 68 }, { session: "Day 3", score: 75 },
+        { session: "Day 4", score: 72 }, { session: "Day 5", score: 82 },
+      ],
+    },
+  },
+  {
+    id: "2", name: "Maria Garcia", room: "Ward-3A", status: "attention",
+    lastActivity: "Missed medication reminder",
+    nurseNotes: [
+      "6:00 AM — Reported headache. BP slightly elevated.",
+      "10:00 AM — Refused breakfast. Will monitor.",
+    ],
+    nutritionistCheckup: false, physiotherapistCheckup: true,
+    meals: [{ label: "Breakfast", eaten: false }, { label: "Lunch", eaten: true }, { label: "Dinner", eaten: false }],
+    medicines: [
+      { name: "Amlodipine 5mg", dosage: "5mg", timing: "Before Breakfast", taken: false },
+      { name: "Atorvastatin 20mg", dosage: "20mg", timing: "After Dinner", taken: false },
+      { name: "Metformin 500mg", dosage: "500mg", timing: "After Lunch", taken: true },
+      { name: "Losartan 50mg", dosage: "50mg", timing: "Before Lunch", taken: true },
+    ],
+    vitals: {
+      bloodPressure: [
+        { time: "6 AM", systolic: 148, diastolic: 95 }, { time: "10 AM", systolic: 142, diastolic: 90 },
+        { time: "2 PM", systolic: 138, diastolic: 88 },
+      ],
+      heartRate: [
+        { time: "6 AM", bpm: 88 }, { time: "10 AM", bpm: 84 }, { time: "2 PM", bpm: 80 },
+      ],
+      oxygenSaturation: [
+        { time: "6 AM", spo2: 96 }, { time: "10 AM", spo2: 95 }, { time: "2 PM", spo2: 96 },
+      ],
+      breathingTherapy: [
+        { session: "Day 1", score: 55 }, { session: "Day 2", score: 58 }, { session: "Day 3", score: 62 },
+      ],
+    },
+  },
+  {
+    id: "3", name: "Robert Chen", room: "ICU-08", status: "completed",
+    lastActivity: "All sessions completed today",
+    nurseNotes: [
+      "6:00 AM — Morning vitals normal. Patient in good spirits.",
+      "10:00 AM — Completed physiotherapy session.",
+      "2:00 PM — All medications administered. No complaints.",
+      "6:00 PM — Dinner served. Patient ate well.",
+    ],
+    nutritionistCheckup: true, physiotherapistCheckup: true,
+    meals: [{ label: "Breakfast", eaten: true }, { label: "Lunch", eaten: true }, { label: "Dinner", eaten: true }],
+    medicines: [
+      { name: "Insulin 10 units", dosage: "10u", timing: "Before Breakfast", taken: true },
+      { name: "Lisinopril 20mg", dosage: "20mg", timing: "After Breakfast", taken: true },
+      { name: "Aspirin 81mg", dosage: "81mg", timing: "After Lunch", taken: true },
+      { name: "Clopidogrel 75mg", dosage: "75mg", timing: "After Dinner", taken: true },
+    ],
+    vitals: {
+      bloodPressure: [
+        { time: "6 AM", systolic: 120, diastolic: 78 }, { time: "10 AM", systolic: 118, diastolic: 76 },
+        { time: "2 PM", systolic: 122, diastolic: 80 }, { time: "6 PM", systolic: 119, diastolic: 77 },
+      ],
+      heartRate: [
+        { time: "6 AM", bpm: 70 }, { time: "10 AM", bpm: 68 }, { time: "2 PM", bpm: 72 }, { time: "6 PM", bpm: 69 },
+      ],
+      oxygenSaturation: [
+        { time: "6 AM", spo2: 98 }, { time: "10 AM", spo2: 98 }, { time: "2 PM", spo2: 97 }, { time: "6 PM", spo2: 98 },
+      ],
+      breathingTherapy: [
+        { session: "Day 1", score: 70 }, { session: "Day 2", score: 78 }, { session: "Day 3", score: 85 },
+        { session: "Day 4", score: 88 }, { session: "Day 5", score: 92 },
+      ],
+    },
+  },
 ];
 
 const statusConfig = {
-  active: {
-    label: "Active Session",
-    icon: Activity,
-    className: "bg-primary/10 text-primary border-primary/20",
-  },
-  completed: {
-    label: "Completed",
-    icon: CheckCircle2,
-    className: "bg-green-500/10 text-green-600 border-green-500/20",
-  },
-  attention: {
-    label: "Needs Attention",
-    icon: AlertCircle,
-    className: "bg-destructive/10 text-destructive border-destructive/20",
-  },
+  active: { label: "Active", icon: Activity, className: "bg-primary/10 text-primary border-primary/20" },
+  completed: { label: "Completed", icon: CheckCircle2, className: "bg-green-500/10 text-green-600 border-green-500/20" },
+  attention: { label: "Attention", icon: AlertCircle, className: "bg-destructive/10 text-destructive border-destructive/20" },
 };
+
+const CHART_COLORS = ["hsl(207, 90%, 54%)", "hsl(199, 89%, 48%)", "hsl(45, 93%, 47%)", "hsl(0, 84%, 60%)"];
 
 const StaffDashboard = () => {
   const navigate = useNavigate();
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary via-background to-card p-4 relative overflow-hidden">
-      {/* Decorative elements */}
       <div className="absolute top-20 left-20 w-72 h-72 bg-primary/8 rounded-full blur-3xl animate-breathe" />
       <div className="absolute bottom-20 right-20 w-64 h-64 bg-accent/8 rounded-full blur-3xl animate-breathe" style={{ animationDelay: "2s" }} />
 
-      <div className="relative z-10 max-w-5xl mx-auto pt-8 animate-fade-in-up">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
+      <div className="relative z-10 max-w-6xl mx-auto pt-8 animate-fade-in-up">
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
         </Button>
 
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-2">
-            Medical Staff Dashboard
+            Doctor Dashboard
           </h1>
-          <p className="text-muted-foreground">
-            Monitor and manage patient sessions in real-time
-          </p>
+          <p className="text-muted-foreground">Comprehensive patient monitoring and management</p>
         </div>
 
         {/* Summary Cards */}
@@ -76,7 +176,6 @@ const StaffDashboard = () => {
           {Object.entries(statusConfig).map(([key, config]) => {
             const Icon = config.icon;
             const count = patients.filter((p) => p.status === key).length;
-
             return (
               <Card key={key} className="glass-card p-4">
                 <div className="flex items-center gap-3">
@@ -102,12 +201,8 @@ const StaffDashboard = () => {
             {patients.map((patient) => {
               const status = statusConfig[patient.status];
               const StatusIcon = status.icon;
-
               return (
-                <div
-                  key={patient.id}
-                  className="p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors"
-                >
+                <div key={patient.id} className="p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
                       <span className="text-lg font-semibold text-primary">
@@ -117,9 +212,7 @@ const StaffDashboard = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-foreground">{patient.name}</h3>
-                        <Badge variant="outline" className="text-xs">
-                          {patient.room}
-                        </Badge>
+                        <Badge variant="outline" className="text-xs">{patient.room}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{patient.lastActivity}</p>
                     </div>
@@ -129,9 +222,9 @@ const StaffDashboard = () => {
                       <StatusIcon className="w-3 h-3" />
                       {status.label}
                     </Badge>
-                    <Button variant="outline" size="sm" className="gap-2">
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedPatient(patient)}>
                       <Eye className="w-4 h-4" />
-                      View Session
+                      View Details
                     </Button>
                   </div>
                 </div>
@@ -140,7 +233,11 @@ const StaffDashboard = () => {
           </div>
         </Card>
 
-        {/* Footer */}
+        {/* Patient Detail Modal */}
+        {selectedPatient && (
+          <PatientDetailView patient={selectedPatient} onClose={() => setSelectedPatient(null)} />
+        )}
+
         <p className="mt-8 text-xs text-muted-foreground text-center">
           Medical-grade monitoring system • Real-time updates
         </p>
@@ -148,5 +245,174 @@ const StaffDashboard = () => {
     </div>
   );
 };
+
+const PatientDetailView = ({ patient, onClose }: { patient: Patient; onClose: () => void }) => {
+  const medsTaken = patient.medicines.filter((m) => m.taken).length;
+  const mealsEaten = patient.meals.filter((m) => m.eaten).length;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-start justify-center p-4 pt-16 overflow-y-auto">
+      <Card className="w-full max-w-4xl glass-card p-6 animate-fade-in-up mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Stethoscope className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">{patient.name}</h2>
+              <p className="text-sm text-muted-foreground">{patient.room}</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="vitals">Vitals</TabsTrigger>
+            <TabsTrigger value="medicines">Medicines</TabsTrigger>
+            <TabsTrigger value="notes">Nurse Notes</TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatusCard icon={Apple} label="Meals" value={`${mealsEaten}/3`} ok={mealsEaten === 3} />
+              <StatusCard icon={Pill} label="Medicines" value={`${medsTaken}/${patient.medicines.length}`} ok={medsTaken === patient.medicines.length} />
+              <StatusCard icon={ChefHat} label="Nutritionist" value={patient.nutritionistCheckup ? "Done" : "Pending"} ok={patient.nutritionistCheckup} />
+              <StatusCard icon={Dumbbell} label="Physiotherapy" value={patient.physiotherapistCheckup ? "Done" : "Pending"} ok={patient.physiotherapistCheckup} />
+            </div>
+
+            {/* Meals breakdown */}
+            <Card className="p-4 bg-secondary/30 rounded-xl">
+              <h4 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">Meals Today</h4>
+              <div className="grid grid-cols-3 gap-3">
+                {patient.meals.map((m, i) => (
+                  <div key={i} className={cn("p-3 rounded-lg border text-center text-sm font-medium",
+                    m.eaten ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary/50 border-border/50 text-muted-foreground"
+                  )}>
+                    {m.eaten ? "✓" : "✗"} {m.label}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Vitals Tab */}
+          <TabsContent value="vitals" className="space-y-6">
+            {/* Blood Pressure */}
+            <Card className="p-4 bg-secondary/30 rounded-xl">
+              <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Heart className="w-4 h-4 text-destructive" /> Blood Pressure
+              </h4>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={patient.vitals.bloodPressure}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(206, 30%, 88%)" />
+                  <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="systolic" stroke={CHART_COLORS[0]} strokeWidth={2} name="Systolic" />
+                  <Line type="monotone" dataKey="diastolic" stroke={CHART_COLORS[1]} strokeWidth={2} name="Diastolic" />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Heart Rate */}
+            <Card className="p-4 bg-secondary/30 rounded-xl">
+              <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-primary" /> Heart Rate (BPM)
+              </h4>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={patient.vitals.heartRate}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(206, 30%, 88%)" />
+                  <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="bpm" fill={CHART_COLORS[0]} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* O2 Saturation */}
+            <Card className="p-4 bg-secondary/30 rounded-xl">
+              <h4 className="font-semibold text-foreground mb-3">Oxygen Saturation (SpO₂)</h4>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={patient.vitals.oxygenSaturation}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(206, 30%, 88%)" />
+                  <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                  <YAxis domain={[90, 100]} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="spo2" stroke={CHART_COLORS[1]} strokeWidth={2} name="SpO₂ %" />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Breathing Therapy */}
+            <Card className="p-4 bg-secondary/30 rounded-xl">
+              <h4 className="font-semibold text-foreground mb-3">Breathing Therapy Progress</h4>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={patient.vitals.breathingTherapy}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(206, 30%, 88%)" />
+                  <XAxis dataKey="session" tick={{ fontSize: 12 }} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="score" fill={CHART_COLORS[2]} radius={[6, 6, 0, 0]} name="Score" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </TabsContent>
+
+          {/* Medicines Tab */}
+          <TabsContent value="medicines" className="space-y-3">
+            {patient.medicines.map((med, i) => (
+              <div key={i} className={cn(
+                "flex items-center justify-between p-4 rounded-xl border",
+                med.taken ? "bg-primary/5 border-primary/20" : "bg-secondary/50 border-border/50"
+              )}>
+                <div className="flex items-center gap-3">
+                  <Pill className={cn("w-5 h-5", med.taken ? "text-primary" : "text-muted-foreground")} />
+                  <div>
+                    <p className="font-medium text-foreground">{med.name}</p>
+                    <p className="text-xs text-muted-foreground">{med.timing}</p>
+                  </div>
+                </div>
+                <Badge className={med.taken
+                  ? "bg-primary/10 text-primary border-primary/20"
+                  : "bg-destructive/10 text-destructive border-destructive/20"
+                }>
+                  {med.taken ? "Taken" : "Pending"}
+                </Badge>
+              </div>
+            ))}
+          </TabsContent>
+
+          {/* Nurse Notes Tab */}
+          <TabsContent value="notes" className="space-y-3">
+            {patient.nurseNotes.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No nurse notes recorded yet.</p>
+            ) : (
+              patient.nurseNotes.map((note, i) => (
+                <div key={i} className="flex items-start gap-3 p-4 bg-secondary/30 rounded-xl">
+                  <FileText className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                  <p className="text-sm text-foreground">{note}</p>
+                </div>
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
+      </Card>
+    </div>
+  );
+};
+
+const StatusCard = ({ icon: Icon, label, value, ok }: { icon: any; label: string; value: string; ok: boolean }) => (
+  <Card className={cn("p-4 rounded-xl border text-center", ok ? "bg-primary/5 border-primary/20" : "bg-secondary/50 border-border/50")}>
+    <Icon className={cn("w-5 h-5 mx-auto mb-2", ok ? "text-primary" : "text-muted-foreground")} />
+    <p className="text-lg font-bold text-foreground">{value}</p>
+    <p className="text-xs text-muted-foreground">{label}</p>
+  </Card>
+);
 
 export default StaffDashboard;
