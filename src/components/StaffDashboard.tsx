@@ -41,13 +41,8 @@ interface Patient {
 }
 
 const patients: Patient[] = [
-<<<<<<< HEAD
-  { id: "1", name: "Tejaswi", room: "ICU-12", status: "active", lastActivity: "Breathing session in progress" },
-  { id: "2", name: "Mrini", room: "Ward-3A", status: "attention", lastActivity: "Missed medication reminder" },
-  { id: "3", name: "Thanu", room: "ICU-08", status: "completed", lastActivity: "Session completed 10 min ago" },
-  { id: "4", name: "Andrea", room: "Ward-2B", status: "active", lastActivity: "Viewing medications" },
-  { id: "5", name: "Divyaa", room: "Ward-4C", status: "completed", lastActivity: "All tasks completed" },
-=======
+
+
   {
     id: "1", name: "John Smith", room: "ICU-12", status: "active",
     lastActivity: "Breathing session in progress",
@@ -146,7 +141,7 @@ const patients: Patient[] = [
       ],
     },
   },
->>>>>>> f1c872b951d6c72ce93b252c4fd3a2c601c9a57b
+  f1c872b951d6c72ce93b252c4fd3a2c601c9a57b
 ];
 
 const statusConfig = {
