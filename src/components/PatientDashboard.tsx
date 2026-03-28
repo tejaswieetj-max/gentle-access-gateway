@@ -1,7 +1,13 @@
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Wind, Pill, AlertTriangle, Shield, ArrowLeft } from "lucide-react";
+import { Wind, Pill, AlertTriangle, Shield, ArrowLeft, Home, User } from "lucide-react";
+import Onboarding from "./Onboarding";
+import Breadcrumb from "./Breadcrumb";
+import SettingsManager from "./SettingsManager";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const actions = [
   {
@@ -32,23 +38,38 @@ const actions = [
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const onboarded = localStorage.getItem("patient_onboarded");
+    if (!onboarded) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("patient_onboarded", "true");
+    setShowOnboarding(false);
+    toast("Welcome aboard!", {
+      description: "You've successfully completed the orientation.",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary via-background to-card p-4 relative overflow-hidden">
-      {/* Decorative elements */}
       <div className="absolute top-20 right-20 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-breathe" />
       <div className="absolute bottom-20 left-20 w-80 h-80 bg-accent/8 rounded-full blur-3xl animate-breathe" style={{ animationDelay: "2s" }} />
 
-      <div className="relative z-10 max-w-4xl mx-auto pt-8 animate-fade-in-up">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
-        </Button>
+      <SettingsManager />
+
+      <div className="relative z-10 max-w-4xl mx-auto pt-8 pb-32 md:pb-8 animate-fade-in-up">
+        {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
+        
+        <Breadcrumb 
+          items={[
+            { label: "Dashboard", active: true }
+          ]} 
+        />
 
         {/* Header */}
         <div className="text-center mb-12">
@@ -114,6 +135,35 @@ const PatientDashboard = () => {
           All activities are monitored • Medical staff on standby
         </p>
       </div>
+
+      {/* Tablet-First Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border px-4 py-2 md:hidden flex justify-around items-center z-50 h-20 shadow-lg">
+        <Link to="/" className="flex flex-col items-center justify-center min-w-[48px] min-h-[48px] text-muted-foreground hover:text-primary transition-colors">
+          <Home className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1 uppercase">Home</span>
+        </Link>
+        {actions.map((action) => {
+          const Icon = action.icon;
+          const isEmergency = action.variant === "emergency";
+          return (
+            <button
+              key={action.id}
+              onClick={() => action.route !== "#" && navigate(action.route)}
+              className={cn(
+                "flex flex-col items-center justify-center min-w-[48px] min-h-[48px] transition-all",
+                isEmergency ? "text-destructive" : "text-muted-foreground hover:text-primary"
+              )}
+            >
+              <Icon className="w-6 h-6" />
+              <span className="text-[10px] font-bold mt-1 uppercase">{action.id}</span>
+            </button>
+          )
+        })}
+        <button className="flex flex-col items-center justify-center min-w-[48px] min-h-[48px] text-muted-foreground hover:text-primary">
+          <User className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1 uppercase">Profile</span>
+        </button>
+      </nav>
     </div>
   );
 };

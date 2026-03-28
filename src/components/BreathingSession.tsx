@@ -2,8 +2,19 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Volume2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Volume2, AlertTriangle, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 type BreathingPhase = "inhale" | "hold" | "exhale";
 
@@ -21,6 +32,7 @@ const BreathingSession = () => {
   const [progress, setProgress] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
   const [isActive, setIsActive] = useState(true);
+  const [showExitDialog, setShowExitDialog] = useState(false);
   const totalCycles = 5;
 
   const nextPhase = useCallback(() => {
@@ -43,6 +55,15 @@ const BreathingSession = () => {
   useEffect(() => {
     if (!isActive) return;
 
+    // Audio Guidance
+    const speak = () => {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(phaseConfig[phase].label);
+      utterance.rate = 0.8;
+      window.speechSynthesis.speak(utterance);
+    };
+    speak();
+
     const phaseDuration = phaseConfig[phase].duration;
     const interval = 50;
     let elapsed = 0;
@@ -57,8 +78,31 @@ const BreathingSession = () => {
       }
     }, interval);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      window.speechSynthesis.cancel();
+    };
   }, [phase, isActive, nextPhase]);
+
+  const handleBack = () => {
+    setIsActive(false);
+    setShowExitDialog(true);
+  };
+
+  const confirmExit = () => {
+    toast("Session terminated", {
+      description: "You can undo this within 10 seconds",
+      action: {
+        label: "Undo",
+        onClick: () => {
+          navigate("/breathing-session");
+          setIsActive(true);
+        },
+      },
+      duration: 10000,
+    });
+    navigate("/patient-dashboard");
+  };
 
   const currentConfig = phaseConfig[phase];
   const overallProgress = ((cycleCount / totalCycles) * 100);
@@ -70,13 +114,21 @@ const BreathingSession = () => {
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-breathe" style={{ animationDelay: "2s" }} />
 
       {/* Header */}
-      <div className="relative z-10 p-4">
+      <div className="relative z-10 p-4 flex justify-between items-center">
         <Button
           variant="ghost"
-          onClick={() => navigate("/patient-dashboard")}
+          onClick={handleBack}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+          Back
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsActive(!isActive)}
+          className="rounded-full w-12 h-12"
+        >
+          {isActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
         </Button>
       </div>
 
@@ -175,6 +227,24 @@ const BreathingSession = () => {
           Call for Help
         </Button>
       </div>
+
+      {/* Exit Confirmation Dialog */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent className="glass-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Pause Session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your breathing therapy is currently paused. Would you like to continue or end the session?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsActive(true)}>Continue Session</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmExit} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-white">
+              End Session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

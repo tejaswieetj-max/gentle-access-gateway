@@ -10,6 +10,7 @@ import NurseLoginPage from "./pages/NurseLoginPage";
 import PatientDashboardPage from "./pages/PatientDashboardPage";
 import StaffDashboardPage from "./pages/StaffDashboardPage";
 import NurseDashboardPage from "./pages/NurseDashboardPage";
+import VisitorDashboardPage from "./pages/VisitorDashboardPage";
 import BreathingSessionPage from "./pages/BreathingSessionPage";
 import MedicationInfoPage from "./pages/MedicationInfoPage";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/nurse-dashboard" element={<NurseDashboardPage />} />
           <Route path="/patient-dashboard" element={<PatientDashboardPage />} />
           <Route path="/staff-dashboard" element={<StaffDashboardPage />} />
+          <Route path="/visitor-dashboard" element={<VisitorDashboardPage />} />
           <Route path="/breathing-session" element={<BreathingSessionPage />} />
           <Route path="/medications" element={<MedicationInfoPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
